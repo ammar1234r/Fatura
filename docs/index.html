@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>فاتورة · Fatura — Live demo</title>
+<meta name="description" content="Turn receipt and invoice photos into arithmetic-verified data and Excel files with Gemini / Gemma 4.">
+<style>
+  :root{--bg:#0B0F17;--card:#111827;--card2:#151B26;--line:#273244;--text:#E6E9EF;--muted:#9AA4B2;--violet:#8B5CF6;--violet2:#A78BFA;--green:#4ADE80;--warn:#FBBF24;--warnbg:#3A2F12;--okbg:#10291C;--err:#F87171;--errbg:#3A1717}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;line-height:1.6}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 16px 64px}
+  .hero{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:22px;padding:28px 30px;display:flex;gap:20px;align-items:center}
+  .hero:before{content:"";position:absolute;inset:-40% auto auto -10%;width:420px;height:420px;background:radial-gradient(circle,rgba(139,92,246,.35),transparent 65%)}
+  .hero:after{content:"";position:absolute;inset:auto -8% -60% auto;width:380px;height:380px;background:radial-gradient(circle,rgba(34,197,94,.22),transparent 65%)}
+  .hero>*{position:relative;z-index:1}
+  .logo{flex:none;width:64px;height:64px;border-radius:16px;background:linear-gradient(135deg,#8B5CF6,#22C55E);display:flex;align-items:center;justify-content:center;font-size:32px}
+  h1{margin:0;font-size:38px;line-height:1.1}
+  h1 small{font-size:19px;margin-inline-start:10px;background:linear-gradient(90deg,var(--violet2),var(--green));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{margin:6px 0 10px;color:#C7CDD8}
+  .pill{display:inline-block;border:1px solid #3B4558;background:#1A2232;color:#C4B5FD;border-radius:999px;padding:3px 12px;font-size:12px;margin-inline-end:6px}
+  .pill a{color:inherit}
+  .step{display:flex;align-items:center;gap:10px;margin:28px 0 12px}
+  .num{width:30px;height:30px;border-radius:9px;background:var(--violet);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .step h2{margin:0;font-size:20px}
+  .panel{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  label{display:block;font-size:13px;color:var(--muted);margin-bottom:4px}
+  input[type=password],input[type=text],select{width:100%;background:#0E1420;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:9px 11px;font-size:14px}
+  .hint{font-size:12px;color:var(--muted);margin-top:6px}
+  .hint a{color:var(--violet2)}
+  .samples{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .sample{background:#0E1420;border:2px solid var(--line);border-radius:14px;padding:8px;cursor:pointer;text-align:center;color:var(--text);font:inherit}
+  .sample img{width:100%;height:150px;object-fit:cover;object-position:top;border-radius:8px;display:block}
+  .sample span{display:block;font-size:13px;margin-top:6px}
+  .sample.on{border-color:var(--violet)}
+  .upload{border:2px dashed var(--line);border-radius:14px;padding:16px;text-align:center;cursor:pointer;color:var(--muted);display:flex;flex-direction:column;justify-content:center;min-height:190px}
+  .upload.on{border-color:var(--violet);color:var(--text)}
+  .btn{background:var(--violet);color:#fff;border:0;border-radius:12px;padding:12px 20px;font-size:16px;font-weight:600;cursor:pointer}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn2{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:14px;cursor:pointer}
+  .log{font-size:13px;color:var(--muted);margin-top:10px;white-space:pre-line}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-top:14px}
+  .head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+  .store{font-size:22px;font-weight:700;margin:0}
+  .meta{font-size:13px;color:var(--muted);margin:2px 0 0}
+  .total{font-size:28px;font-weight:800;color:var(--green);direction:ltr;margin:0}
+  .banner{border-radius:10px;padding:10px 12px;margin:12px 0;font-size:14px}
+  .ok{background:var(--okbg);color:var(--green)} .bad{background:var(--warnbg);color:var(--warn)} .error{background:var(--errbg);color:var(--err)}
+  .demo{background:#1E1838;color:#C4B5FD}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:8px;border-bottom:1px solid var(--line);text-align:start}
+  th{color:var(--muted);font-weight:500}
+  td.n{direction:ltr;text-align:end;font-variant-numeric:tabular-nums}
+  .neg{color:var(--err)}
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
+  .metric{background:var(--card2);border-radius:10px;padding:10px 12px}
+  .metric b{display:block;font-size:20px}
+  .metric small{color:var(--muted)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  details{margin-top:10px} summary{cursor:pointer;color:var(--muted);font-size:13px}
+  pre{background:#0E1420;border:1px solid var(--line);border-radius:10px;padding:10px;overflow:auto;font-size:12px;direction:ltr;text-align:left}
+  .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);gap:14px;margin-top:6px}
+  .two img{width:100%;border-radius:10px;border:1px solid var(--line)}
+  footer{margin-top:40px;color:var(--muted);font-size:13px;text-align:center}
+  footer a{color:var(--violet2)}
+  @media (max-width:640px){.two{grid-template-columns:1fr}.hero{flex-direction:column;align-items:flex-start}h1{font-size:30px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="logo">🧾</div>
+    <div>
+      <h1>فاتورة <small>Fatura</small></h1>
+      <div class="sub">ارفع فاتورتك، ونستخرج بياناتها ونتحقق من حسابها ونعطيك ملف Excel جاهز.<br><span dir="ltr">Receipt &amp; invoice photos → arithmetic-verified data → Excel. Turkish · Arabic · English.</span></div>
+      <span class="pill">✨ Gemini · Gemma 4</span><span class="pill">Self-correcting</span><span class="pill"><a href="https://github.com/ammar1234r/Fatura" target="_blank" rel="noopener">GitHub ↗</a></span>
+    </div>
+  </header>
+
+  <div class="step"><div class="num">1</div><h2>الإعدادات · Settings</h2></div>
+  <div class="panel grid">
+    <div>
+      <label for="key">Gemini API key (اختياري · optional)</label>
+      <input id="key" type="password" placeholder="AIza… / AQ…" autocomplete="off">
+      <div class="hint">بدون مفتاح: جرّب الإيصالات التجريبية بنتائجها المعروفة. مع مفتاح: قراءة حية لأي فاتورة. المفتاح يُرسل لـ Google فقط ولا يُحفظ. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">احصل على مفتاح مجاني</a></div>
+    </div>
+    <div>
+      <label for="model">Model</label>
+      <select id="model"><option>gemini-3.8-flash</option><option>gemma-4-31b-it</option></select>
+      <div class="hint">إذا فشل النموذج المختار يُستخدم الآخر تلقائياً.</div>
+    </div>
+    <div>
+      <label for="lang">لغة الترجمة · Translation</label>
+      <select id="lang"><option value="English">English</option><option value="Arabic">العربية</option><option value="Turkish">Türkçe</option></select>
+    </div>
+  </div>
+
+  <div class="step"><div class="num">2</div><h2>اختر إيصالاً · Pick a receipt</h2></div>
+  <div class="samples" id="samples">
+    <button class="sample" data-file="receipt_tr_market.jpg"><img src="samples/receipt_tr_market.jpg" alt="Turkish market receipt"><span>🇹🇷 Market · خصم + KDV</span></button>
+    <button class="sample" data-file="receipt_en_cafe.jpg"><img src="samples/receipt_en_cafe.jpg" alt="English cafe receipt"><span>🇺🇸 Café · tax on top</span></button>
+    <button class="sample" data-file="receipt_ar_supermarket.jpg"><img src="samples/receipt_ar_supermarket.jpg" alt="Arabic supermarket receipt"><span>🇸🇦 سوبرماركت · VAT 15%</span></button>
+    <label class="upload" id="uploadBox" for="file">⬆️<br>ارفع صورتك<br><small>JPG · PNG · WEBP</small><input id="file" type="file" accept="image/jpeg,image/png,image/webp" hidden></label>
+  </div>
+
+  <div class="step"><div class="num">3</div><h2>استخراج وتحقق · Extract &amp; verify</h2></div>
+  <div class="panel">
+    <button class="btn" id="run" disabled>استخراج البيانات</button>
+    <div class="log" id="log">اختر إيصالاً تجريبياً أو ارفع صورة.</div>
+  </div>
+
+  <div id="results"></div>
+
+  <footer>Fatura · open source (MIT) · <a href="https://github.com/ammar1234r/Fatura" target="_blank" rel="noopener">github.com/ammar1234r/Fatura</a><br>
+  This page runs the Fatura pipeline in your browser. The full project (.NET engine + API + Streamlit site) is in the repository.</footer>
+</div>
+
+<script src="vendor/xlsx.full.min.js"></script>
+<script>
+"use strict";
+const EXPECTED = {"receipt_tr_market.jpg": {"store_name": "KARANFIL MARKET", "date": "2026-10-12", "currency": "TRY", "category": "Groceries", "items": [{"name_original": "EKMEK TAM BUGDAY", "name_translated": "Whole wheat bread", "quantity": 2.0, "price": 35.0}, {"name_original": "SUT 1L YARIM YAGLI", "name_translated": "Semi-skimmed milk 1L", "quantity": 3.0, "price": 98.7}, {"name_original": "BEYAZ PEYNIR 500G", "name_translated": "White cheese 500g", "quantity": 1.0, "price": 189.95}, {"name_original": "DOMATES KG", "name_translated": "Tomatoes (kg)", "quantity": 1.25, "price": 55.0}, {"name_original": "ZEYTINYAGI 1L", "name_translated": "Olive oil 1L", "quantity": 1.0, "price": 399.0}, {"name_original": "YUMURTA 15LI", "name_translated": "Eggs (15 pack)", "quantity": 1.0, "price": 119.5}, {"name_original": "INDIRIM (KAMPANYA)", "name_translated": "Discount (campaign)", "quantity": 1, "price": -25.0}], "tax_amount": 8.64, "total_amount": 872.15}, "receipt_en_cafe.jpg": {"store_name": "MAPLE LANE CAFE", "date": "2026-10-14", "currency": "USD", "category": "Cafe", "items": [{"name_original": "Flat White", "name_translated": "Flat White", "quantity": 2, "price": 9.5}, {"name_original": "Blueberry Muffin", "name_translated": "Blueberry Muffin", "quantity": 1, "price": 3.95}, {"name_original": "Avocado Toast", "name_translated": "Avocado Toast", "quantity": 1, "price": 11.5}, {"name_original": "Sparkling Water", "name_translated": "Sparkling Water", "quantity": 2, "price": 5.6}, {"name_original": "Chocolate Cookie", "name_translated": "Chocolate Cookie", "quantity": 3, "price": 5.7}], "tax_amount": 3.22, "total_amount": 39.47}, "receipt_ar_supermarket.jpg": {"store_name": "أسواق الياسمين", "date": "2026-10-18", "currency": "SAR", "category": "Groceries", "items": [{"name_original": "أرز بسمتي ٥ كجم", "name_translated": "Basmati rice 5kg", "quantity": 1, "price": 54.95}, {"name_original": "حليب طازج ٢ لتر", "name_translated": "Fresh milk 2L", "quantity": 2, "price": 23.0}, {"name_original": "تمر سكري ١ كجم", "name_translated": "Sukkari dates 1kg", "quantity": 1, "price": 38.0}, {"name_original": "زيت دوار الشمس", "name_translated": "Sunflower oil", "quantity": 1, "price": 27.75}, {"name_original": "خبز عربي", "name_translated": "Arabic bread", "quantity": 3, "price": 9.0}, {"name_original": "ماء ٦٠٠ مل × ١٢", "name_translated": "Water 600ml x12", "quantity": 1, "price": 13.25}], "tax_amount": 21.65, "total_amount": 165.95}};
+const MODELS = ["gemini-3.8-flash", "gemma-4-31b-it"];
+const BASE = "https://generativelanguage.googleapis.com/v1beta/models/";
+const TOL = 0.05, TIMEOUT_MS = 120000, BUDGET_MS = 150000;
+const CAT_AR = {Groceries:"بقالة",Restaurant:"مطعم",Cafe:"مقهى",Fuel:"وقود",Transport:"مواصلات",Pharmacy:"صيدلية",Healthcare:"صحة",Electronics:"إلكترونيات",Clothing:"ملابس",Utilities:"فواتير وخدمات",Hotel:"فندق",Entertainment:"ترفيه",Services:"خدمات",Other:"أخرى"};
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const r2 = x => Math.round((Number(x) || 0) * 100) / 100;
+const fmt = x => r2(x).toLocaleString("en-US", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+let selected = null; // {name, blob, mime, sample}
+
+// ---------- selection ----------
+document.querySelectorAll(".sample").forEach(b => b.addEventListener("click", async () => {
+  document.querySelectorAll(".sample,.upload").forEach(x => x.classList.remove("on")); b.classList.add("on");
+  const file = b.dataset.file;
+  const blob = await (await fetch("samples/" + file)).blob();
+  selected = {name: file, blob, mime: "image/jpeg", sample: true};
+  ready();
+}));
+$("#file").addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  if (!["image/jpeg","image/png","image/webp"].includes(f.type)) { log("الصورة غير مدعومة. استخدم JPG أو PNG أو WEBP."); return; }
+  if (f.size > 14 * 1024 * 1024) { log("الصورة كبيرة جداً (الحد 14MB)."); return; }
+  document.querySelectorAll(".sample").forEach(x => x.classList.remove("on")); $("#uploadBox").classList.add("on");
+  selected = {name: f.name, blob: f, mime: f.type, sample: false};
+  ready();
+});
+$("#key").addEventListener("input", ready);
+function ready() {
+  const key = $("#key").value.trim();
+  $("#run").disabled = !selected || (!selected.sample && !key);
+  if (!selected) return;
+  log(selected.sample && !key ? `${selected.name}: عرض النتيجة المعروفة لهذا الإيصال (بدون مفتاح).`
+    : !key ? "أدخل مفتاح Gemini لقراءة صورتك." : `${selected.name}: جاهز للقراءة الحية بـ ${$("#model").value}.`);
+}
+function log(t) { $("#log").textContent = t; }
+
+// ---------- rules engine ----------
+function validate(d) {
+  const items = d.items || [], total = r2(d.total_amount), tax = r2(d.tax_amount);
+  if (!items.length) return v(false, 0, total, 'No line items were extracted. Every purchased item must be listed in "items".');
+  const sum = r2(items.reduce((a, i) => a + (Number(i.price) || 0), 0));
+  if (total <= 0) return v(false, sum, total, `total_amount is ${fmt(total)}, which is not a valid grand total. Locate the grand-total line (TOPLAM / الإجمالي / TOTAL). If amounts are masked keep 0.`);
+  if (Math.abs(sum - total) <= TOL + 1e-9) return v(true, sum, total, null);
+  if (tax > 0 && Math.abs(sum + tax - total) <= TOL + 1e-9) return v(true, r2(sum + tax), total, null);
+  const diff = r2(sum - total);
+  let m = `Arithmetic mismatch: the sum of the ${items.length} item prices is ${fmt(sum)}, but total_amount is ${fmt(total)} (difference ${diff > 0 ? "+" : ""}${fmt(diff)}, tolerance ±0.05).`;
+  if (tax > 0) m += ` Adding tax_amount (${fmt(tax)}) gives ${fmt(sum + tax)}, which does not match either.`;
+  m += "\nItems you extracted:\n" + items.map((i, n) => `  ${n + 1}. "${i.name_original}" qty=${i.quantity} price=${fmt(i.price)}`).join("\n");
+  m += diff < 0 ? "\nThe items sum is LOWER than the total: an item may be missing or a price under-read."
+               : "\nThe items sum is HIGHER than the total: an item may be duplicated, a subtotal mis-handled, or a price over-read.";
+  return v(false, sum, total, m);
+}
+function v(ok, c, e, m) { return {is_valid: ok, calculated_total: r2(c), extracted_total: r2(e), error_message: m}; }
+
+// ---------- prompts ----------
+const extractionPrompt = lang => `You are Fatura, a precise receipt and invoice data-extraction engine.
+The attached image is a receipt or invoice that may be in Turkish, Arabic, or English. Extract:
+RULES
+1. items: list EVERY purchased line item exactly once.
+   - name_original: item name exactly as printed. name_translated: the name translated to ${lang}.
+   - quantity: number (1 if not printed). price: the LINE TOTAL (quantity × unit price) as printed.
+   - Discounts (indirim / خصم) are items with a NEGATIVE price.
+   - Do NOT include subtotal, total, tax, payment, change or loyalty lines as items.
+   - If the document has columns with and without tax, use the tax-INCLUDED column.
+2. tax_amount: total VAT/KDV printed (0 if none). 3. total_amount: the grand total payable.
+4. Numbers: plain JSON numbers with '.' decimals, no thousands separators ("1.234,56" → 1234.56). Convert Arabic-Indic digits.
+5. date: "yyyy-MM-dd" or null. 6. currency: ISO-4217 (TL/₺ → TRY, ر.س → SAR, $ → USD, € → EUR).
+7. category: one of Groceries, Restaurant, Cafe, Fuel, Transport, Pharmacy, Healthcare, Electronics, Clothing, Utilities, Hotel, Entertainment, Services, Other.
+8. Never invent data; unreadable → null (strings) or 0 (numbers).
+Return ONLY one JSON object, no Markdown:
+{"store_name": string|null, "date": string|null, "currency": string|null, "category": string,
+ "items": [{"name_original": string, "name_translated": string, "quantity": number, "price": number}],
+ "tax_amount": number, "total_amount": number}`;
+const correctionPrompt = (err, n) => `VALIDATION FAILED (after attempt ${n}). A deterministic arithmetic check rejected your extraction:
+
+${err}
+
+Re-examine the ORIGINAL IMAGE line by line (skipped/duplicated items, misread digits, unit price instead of line total, missing negative discounts, subtotal/tax lines counted as items, wrong total line).
+Report only what is printed; do NOT invent values to force a balance. Return the COMPLETE corrected JSON object only.`;
+
+function parse(text) {
+  const s = (text || "").indexOf("{"), e = (text || "").lastIndexOf("}");
+  if (s < 0 || e <= s) return [null, "Response did not contain a JSON object."];
+  let d; try { d = JSON.parse(text.slice(s, e + 1)); } catch (x) { return [null, "Invalid JSON: " + x.message]; }
+  d.items = (d.items || []).filter(i => i && String(i.name_original || "").trim()).map(i => ({...i, quantity: Number(i.quantity ?? 1) || 0, price: Number(i.price) || 0}));
+  d.tax_amount = Number(d.tax_amount) || 0; d.total_amount = Number(d.total_amount) || 0;
+  if (d.currency) d.currency = String(d.currency).trim().toUpperCase();
+  return [d, null];
+}
+
+// ---------- Gemini transport ----------
+class ApiError extends Error { constructor(status, msg, body) { super(msg); this.status = status; this.body = body || ""; } }
+async function send(key, contents, st) {
+  const cfg = {temperature: 0.1};
+  if (st.json) cfg.responseMimeType = "application/json";
+  if (st.thinking) cfg.thinkingConfig = {thinkingLevel: "low"};
+  for (let attempt = 0; ; attempt++) {
+    const ctrl = new AbortController(); const t = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+    let r;
+    try {
+      r = await fetch(BASE + encodeURIComponent(st.model) + ":generateContent", {method: "POST", signal: ctrl.signal,
+        headers: {"Content-Type": "application/json", "x-goog-api-key": key}, body: JSON.stringify({contents, generationConfig: cfg})});
+    } catch (x) {
+      clearTimeout(t);
+      if (x.name === "AbortError") throw new ApiError(504, `The model did not answer within ${TIMEOUT_MS / 1000} s.`);
+      if (attempt < 2) { await sleep(1000 * (attempt + 1)); continue; }
+      throw new ApiError(503, "Could not reach the Gemini API.");
+    }
+    clearTimeout(t);
+    if (r.ok) {
+      const body = await r.json();
+      if (body.promptFeedback?.blockReason) throw new ApiError(502, "Prompt was blocked: " + body.promptFeedback.blockReason);
+      const c = (body.candidates || [])[0]; if (!c) throw new ApiError(502, "No answer from the model.");
+      const text = (c.content?.parts || []).filter(p => !p.thought && p.text).map(p => p.text).join("");
+      if (!text.trim()) throw new ApiError(502, "Empty answer (" + (c.finishReason || "unknown") + ").");
+      return text;
+    }
+    const body = await r.text();
+    const budget = r.status === 500 ? 1 : 3;
+    if ([429, 500, 502, 503, 504].includes(r.status) && attempt < budget && !(st.json && r.status === 500)) { await sleep(1000 * 2 ** attempt + Math.random() * 300); continue; }
+    throw new ApiError(r.status, `Gemini API returned ${r.status}: ${body.slice(0, 600)}`, body);
+  }
+}
+async function generate(key, contents, st) {
+  for (;;) {
+    try { return await send(key, contents, st); }
+    catch (e) {
+      const b = (e.body || "").toLowerCase();
+      if (st.thinking && e.status === 400) { st.thinking = false; continue; }
+      if (st.json && (e.status === 500 || (e.status === 400 && /json|schema|mime/.test(b)))) { st.json = false; continue; }
+      if (!st.fallback && [404, 408, 429, 500, 502, 503, 504].includes(e.status)) {
+        const other = MODELS.find(m => m !== st.model);
+        Object.assign(st, {model: other, fallback: true, json: !other.startsWith("gemma"), thinking: !other.startsWith("gemma")});
+        log(`⚠️ ${e.status}: التبديل إلى النموذج الاحتياطي ${other}…`); continue;
+      }
+      throw e;
+    }
+  }
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const toB64 = blob => new Promise((ok, no) => { const fr = new FileReader(); fr.onload = () => ok(String(fr.result).split(",")[1]); fr.onerror = no; fr.readAsDataURL(blob); });
+
+async function processLive(key, sel, model, lang) {
+  const t0 = performance.now();
+  const contents = [{role: "user", parts: [{inlineData: {mimeType: sel.mime, data: await toB64(sel.blob)}}, {text: extractionPrompt(lang)}]}];
+  const st = {model, fallback: false, json: !model.startsWith("gemma"), thinking: !model.startsWith("gemma")};
+  const history = []; let data = null, val = null, corr = 0;
+  for (let n = 1; n <= 3; n++) {
+    log(`⏳ المحاولة ${n} (${st.model})… قد تستغرق حتى دقيقة.`);
+    const a0 = performance.now();
+    const raw = await generate(key, contents, st);
+    const [d, err] = parse(raw);
+    const canRetry = n <= 2 && performance.now() - t0 < BUDGET_MS;
+    if (err) {
+      history.push({attempt_number: n, is_correction: n > 1, validation: null, error: err, duration: r2((performance.now() - a0) / 1000)});
+      if (!canRetry) break;
+      corr++; contents.push({role: "model", parts: [{text: raw}]}, {role: "user", parts: [{text: `Your previous response could not be parsed: ${err}\nReturn ONLY one valid JSON object.`}]});
+      continue;
+    }
+    data = d; val = validate(d);
+    history.push({attempt_number: n, is_correction: n > 1, validation: val, error: null, duration: r2((performance.now() - a0) / 1000)});
+    if (val.is_valid || !canRetry) break;
+    corr++; log(`🔁 الحساب غير مطابق، يعيد النموذج فحص الصورة…`);
+    contents.push({role: "model", parts: [{text: raw}]}, {role: "user", parts: [{text: correctionPrompt(val.error_message, n)}]});
+  }
+  return {attempts: history.length, corrections_made: corr, final_data: data, validation: val, history,
+          model_name: st.model, used_fallback_model: st.fallback, total_duration: r2((performance.now() - t0) / 1000)};
+}
+
+// ---------- run ----------
+$("#run").addEventListener("click", async () => {
+  if (!selected) return;
+  const key = $("#key").value.trim(), sel = selected;
+  $("#run").disabled = true;
+  try {
+    let audit, demo = false;
+    if (!key && sel.sample) {
+      const d = structuredClone(EXPECTED[sel.name]); const val = validate(d);
+      audit = {attempts: 1, corrections_made: 0, final_data: d, validation: val, model_name: "—", used_fallback_model: false, total_duration: 0,
+               history: [{attempt_number: 1, is_correction: false, validation: val, error: null, duration: 0}]};
+      demo = true;
+    } else {
+      audit = await processLive(key, sel, $("#model").value, $("#lang").value);
+    }
+    render(sel, audit, demo);
+    log(demo ? "✅ عُرضت النتيجة المعروفة. أدخل مفتاحك لتجربة القراءة الحية." : `✅ انتهت المعالجة خلال ${audit.total_duration} ث.`);
+  } catch (e) {
+    const hints = {400: "الطلب غير صالح أو المفتاح خاطئ.", 401: "مفتاح غير صالح.", 403: "المفتاح مرفوض.", 404: "النموذج غير متاح.", 429: "تجاوزت حد الطلبات، انتظر دقيقة.", 503: "خوادم Google مشغولة، أعد المحاولة.", 504: "النموذج تأخر في الرد، أعد المحاولة."};
+    renderError(sel, `${hints[e.status] || "حدث خطأ."} (${e.status || ""})\n${e.message}`);
+    log("❌ فشلت المعالجة.");
+  } finally { ready(); }
+});
+
+function render(sel, a, demo) {
+  const d = a.final_data || {}, val = a.validation || {}, cur = d.currency || "";
+  const url = URL.createObjectURL(sel.blob);
+  const banner = demo ? `<div class="banner demo">ℹ️ نتيجة معروفة مسبقاً لهذا الإيصال التجريبي (ليست قراءة حية). أدخل مفتاح Gemini لتشغيل القراءة الحية.</div>` : "";
+  const status = val.is_valid
+    ? `<div class="banner ok">✅ الحساب مطابق: مجموع البنود ${fmt(val.calculated_total)} = الإجمالي ${fmt(val.extracted_total)}${Math.abs(val.calculated_total - val.extracted_total) >= 0.005 ? ` (فرق تقريب ${fmt(Math.abs(val.calculated_total - val.extracted_total))})` : ""}</div>`
+    : `<div class="banner bad">⚠️ الأرقام لم تتطابق بعد ${a.attempts} محاولات: مجموع البنود ${fmt(val.calculated_total)} والإجمالي ${fmt(val.extracted_total)}. راجع الصورة.</div>`;
+  const rows = (d.items || []).map(i => `<tr><td dir="auto">${esc(i.name_original)}</td><td dir="auto">${esc(i.name_translated)}</td><td class="n">${esc(i.quantity)}</td><td class="n ${i.price < 0 ? "neg" : ""}">${fmt(i.price)}</td></tr>`).join("");
+  const el = document.createElement("div"); el.className = "card";
+  el.innerHTML = `${banner}<div class="head"><div><p class="store" dir="auto">${esc(d.store_name || sel.name)}</p>
+      <p class="meta">${esc(d.date || "—")} · ${esc(CAT_AR[d.category] || d.category || "—")} · ${esc(cur || "—")} · ${esc(sel.name)}</p></div>
+      <div><p class="meta">الإجمالي</p><p class="total">${fmt(d.total_amount)} ${esc(cur)}</p></div></div>
+    ${status}
+    <div class="two"><img src="${url}" alt="receipt"><div><table><thead><tr><th>البند</th><th>الترجمة</th><th>الكمية</th><th>المبلغ</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+    <div class="metrics"><div class="metric"><small>الضريبة</small><b>${fmt(d.tax_amount)}</b></div>
+      <div class="metric"><small>المحاولات</small><b>${a.attempts}${a.corrections_made ? ` · ${a.corrections_made} تصحيح` : ""}</b></div>
+      <div class="metric"><small>النموذج</small><b style="font-size:15px">${esc(a.model_name)}${a.used_fallback_model ? " (احتياطي)" : ""}</b></div>
+      <div class="metric"><small>المدة</small><b>${demo ? "—" : a.total_duration + " ث"}</b></div></div>
+    <div class="row"><button class="btn">⬇️ تنزيل Excel</button></div>
+    <details><summary>JSON</summary><pre>${esc(JSON.stringify(a, null, 2))}</pre></details>`;
+  el.querySelector(".row .btn").addEventListener("click", () => downloadExcel(a, sel.name));
+  $("#results").prepend(el);
+}
+function renderError(sel, msg) {
+  const el = document.createElement("div"); el.className = "card";
+  el.innerHTML = `<p class="store">${esc(sel.name)}</p><div class="banner error" style="white-space:pre-line">${esc(msg)}</div>`;
+  $("#results").prepend(el);
+}
+
+// ---------- Excel ----------
+function downloadExcel(a, fileName) {
+  if (!window.XLSX) { alert("Excel library failed to load."); return; }
+  const d = a.final_data || {}, items = d.items || [], rtl = $("#lang").value === "Arabic";
+  const aoa = [[d.store_name || fileName], [], ["Date", d.date], ["Category", d.category], ["Currency", d.currency],
+               ["Status", a.validation?.is_valid ? "Verified" : "Needs review"], ["File", fileName], [],
+               ["#", "Item (original)", "Item (translated)", "Qty", "Price"]];
+  items.forEach((i, n) => aoa.push([n + 1, i.name_original, i.name_translated, i.quantity, i.price]));
+  const first = 10, last = 9 + Math.max(items.length, 1), t = last + 2;
+  aoa.push([]);
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  const set = (addr, v) => { ws[addr] = v; };
+  set(`D${t}`, {t: "s", v: "Items sum"});  set(`E${t}`, {t: "n", f: `SUM(E${first}:E${last})`, z: "#,##0.00"});
+  set(`D${t + 1}`, {t: "s", v: "Tax"});    set(`E${t + 1}`, {t: "n", v: d.tax_amount || 0, z: "#,##0.00"});
+  set(`D${t + 2}`, {t: "s", v: "Total"});  set(`E${t + 2}`, {t: "n", v: d.total_amount || 0, z: "#,##0.00"});
+  set(`D${t + 3}`, {t: "s", v: "Difference"}); set(`E${t + 3}`, {t: "n", f: `E${t}-E${t + 2}`, z: "#,##0.00"});
+  for (let r = first; r <= last; r++) if (ws[`E${r}`]) ws[`E${r}`].z = "#,##0.00";
+  ws["!ref"] = `A1:E${t + 3}`; ws["!cols"] = [{wch: 5}, {wch: 40}, {wch: 34}, {wch: 8}, {wch: 14}];
+  const audit = XLSX.utils.json_to_sheet((a.history || []).map(h => ({Attempt: h.attempt_number, Correction: h.is_correction ? "Yes" : "No",
+    Result: h.error ? "Error: " + h.error : h.validation?.is_valid ? "Valid" : "Invalid: " + (h.validation?.error_message || ""), Seconds: h.duration, Model: a.model_name})));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Invoice"); XLSX.utils.book_append_sheet(wb, audit, "Audit");
+  if (rtl) wb.Workbook = {Views: [{RTL: true}]};
+  const stem = (d.store_name || fileName).replace(/[^\p{L}\p{N}_-]+/gu, "_");
+  XLSX.writeFile(wb, `${stem}_${d.date || "invoice"}.xlsx`);
+}
+</script>
+</body>
+</html>

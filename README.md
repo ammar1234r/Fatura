@@ -2,6 +2,10 @@
 
 **Turn receipt and invoice photos into verified, structured data and a ready-to-use Excel file.**
 
+### ▶️ Live demo: **https://ammar1234r.github.io/Fatura/**
+
+Open it and click a sample receipt to see the full result instantly, no setup needed. Add your own free [Gemini API key](https://aistudio.google.com/apikey) on the page to read any receipt live, including the self-correction loop and the Excel download. The key is sent only to Google and is never stored.
+
 Fatura reads receipts and invoices in **Turkish, Arabic, or English** using Google's multimodal models (Gemini / Gemma 4). What sets it apart is that it **checks the math**. A deterministic rules engine verifies that the line items add up to the total. If they don't, it runs a **self-correction loop**: the exact arithmetic error goes back to the model, which re-examines the image.
 
 > ارفع صورة فاتورتك، فيستخرج Fatura بنودها، ويتحقق من أن مجموع البنود يساوي الإجمالي. وإذا لم يتطابق الحساب يطلب من النموذج إعادة فحص الصورة تلقائياً، ثم يعطيك النتيجة وملف Excel جاهز.
