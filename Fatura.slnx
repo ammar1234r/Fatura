@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Fatura.Api/Fatura.Api.csproj" />
+    <Project Path="src/Fatura.ConsoleTest/Fatura.ConsoleTest.csproj" />
+    <Project Path="src/Fatura.Core/Fatura.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Fatura.Tests/Fatura.Tests.csproj" />
+  </Folder>
+</Solution>

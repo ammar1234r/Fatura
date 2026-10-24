@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <RootNamespace>Fatura.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Lets the unit-test project reach `internal` helpers such as TryParseReceipt. -->
+    <InternalsVisibleTo Include="Fatura.Tests" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Fatura.Core\Fatura.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Copies sample.jpg next to the .exe on every build, so `dotnet run` finds it. -->
+    <None Include="sample.jpg" Condition="Exists('sample.jpg')" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
