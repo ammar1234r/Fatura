@@ -43,8 +43,8 @@ Browser ──► Streamlit UI ──► Fatura.Api ──► Fatura.Core ──
 ## Quick start (Windows PowerShell)
 
 ```powershell
-git clone https://github.com/<your-username>/fatura.git
-cd fatura
+git clone https://github.com/ammar1234r/Fatura.git
+cd Fatura
 py -m pip install -r ui\requirements.txt
 $env:GEMINI_API_KEY="your-key"
 powershell -ExecutionPolicy Bypass -File .\run.ps1
@@ -53,6 +53,22 @@ powershell -ExecutionPolicy Bypass -File .\run.ps1
 Then open **http://localhost:8501**.
 
 `run.ps1` starts the API on `http://localhost:5080` in a second window and the website in the current one.
+
+### Try it with the sample receipts
+
+The [`samples/`](samples) folder has three **synthetic** receipts (fictional stores, exact arithmetic), one for each scenario the validator handles:
+
+| File | Language | What it tests | Expected total |
+|---|---|---|---|
+| `receipt_tr_market.jpg` | Turkish | Quantities × unit price, a **negative discount line**, KDV included | 872.15 TRY |
+| `receipt_en_cafe.jpg` | English | Sales tax **added on top** (items + tax = total) | 39.47 USD |
+| `receipt_ar_supermarket.jpg` | Arabic | Arabic text, Arabic-Indic digits in names, VAT 15% included | 165.95 SAR |
+
+Upload them on the website, or run:
+
+```powershell
+dotnet run --project src/Fatura.ConsoleTest -- samples\receipt_tr_market.jpg
+```
 
 ### Run the pieces manually
 
